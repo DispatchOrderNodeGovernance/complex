@@ -20,8 +20,8 @@ def lambda_handler(event, context):
     result = []
     for item in items:
         result.append({
-            'id': item.get('id'),
-            'total_contract_value': item.get('total_contract_value')
+            'id': float(item.get('id')),
+            'total_contract_value': float(item.get('total_contract_value'))
         })
     
     # Return the result as a JSON object
