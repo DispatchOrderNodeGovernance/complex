@@ -1,8 +1,12 @@
 import json
 import boto3
 import os
+import time
 
-def lambda_handler(event, context):
+CACHE_FILE_PATH = '/tmp/cache.json'
+CACHE_EXPIRATION_SECONDS = 300  # Set cache expiration time (e.g., 5 minutes)
+
+def fetch_data_from_dynamodb():
     # Initialize a session using Amazon DynamoDB
     dynamodb = boto3.resource('dynamodb')
     
@@ -24,8 +28,30 @@ def lambda_handler(event, context):
             'total_contract_value': float(item.get('total_contract_value'))
         })
     
-    # Return the result as a JSON object
+    return result
+
+def lambda_handler(event, context):
+    current_time = time.time()
+    
+    # Check if the cache file exists and is not expired
+    if os.path.exists(CACHE_FILE_PATH):
+        file_modification_time = os.path.getmtime(CACHE_FILE_PATH)
+        if current_time - file_modification_time < CACHE_EXPIRATION_SECONDS:
+            # Read data from cache file
+            with open(CACHE_FILE_PATH, 'r') as cache_file:
+                cached_data = json.load(cache_file)
+            return {
+                'statusCode': 200,
+                'body': json.dumps(cached_data)
+            }
+    
+    # Fetch data from DynamoDB and update the cache file
+    data = fetch_data_from_dynamodb()
+    
+    with open(CACHE_FILE_PATH, 'w') as cache_file:
+        json.dump(data, cache_file)
+
     return {
         'statusCode': 200,
-        'body': json.dumps(result)
+        'body': json.dumps(data)
     }
