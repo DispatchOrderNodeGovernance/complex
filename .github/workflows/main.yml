@@ -12,4 +12,4 @@ jobs:
           args: zip -qq -r complex.zip src
       - uses: actions/upload-artifact@v2
         with:
-          name: complex.zip
+          path: complex.zip
