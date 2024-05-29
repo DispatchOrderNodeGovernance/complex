@@ -1,5 +1,6 @@
 CREATE TABLE contract_templates (
     id SERIAL PRIMARY KEY,
+    service_area TEXT,
     ride_matching_service_endpoints TEXT,
     location_service_endpoints TEXT,
     notification_service_endpoints TEXT,
